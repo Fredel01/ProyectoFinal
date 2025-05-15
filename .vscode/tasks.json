@@ -1,0 +1,33 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe compilar archivo activo ⚔️⚔️",
+            "command": "C:/mingw64/bin/g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-I",
+                "C:/Program Files/MySQL/mysql-8.0.41-winx64/include",
+                "-L",
+                "C:/Program Files/MySQL/mysql-8.0.41-winx64/lib",
+                "-llibmysql",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "compilador: C:/mingw64/bin/g++.exe"
+        }
+    ],
+    "version": "2.0.0"
+}
