@@ -1,332 +1,314 @@
 #include "MySQLConexion.h"
 #include "EloquentORM.h"
 #include <iostream>
-#include <vector>
 #include <string>
 
 using namespace std;
 
-void menu() {
-    cout << "------------------Sistema de Estudiantes-------------------" << endl;
-    cout << "1. Crear" << endl;
-    cout << "2. Leer" << endl;
-    cout << "3. Actualizar" << endl;
-    cout << "4. Eliminar" << endl;
-    cout << "5. Salir" << endl;
-}
+// ================= ENTIDADES ====================
 
-void crear(MySQLConexion& conn) {
-    int opcion;
-    string nombre, apellido, correo, fecha, especialidad, descripcion, tipo;
-    int creditos, id_docente, id_estudiante, id_curso;
-    float nota;
+class Estudiante {
+    MySQLConexion& conn;
+    EloquentORM orm;
+public:
+    Estudiante(MySQLConexion& conexion)
+        : conn(conexion), orm(conexion, "ESTUDIANTES", {"ID_ESTUDIANTE", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"}) {}
 
-    cout << "------ Crear ------" << endl;
-    cout << "1. Estudiante" << endl;
-    cout << "2. Docente" << endl;
-    cout << "3. Curso" << endl;
-    cout << "4. Nota" << endl;
-    cout << "5. Salir" << endl;
-    cin >> opcion;
+    void crear() {
+        string nombre, apellido, correo, fecha;
+        int id_estudiante;
+        cout << "ID Estudiante: "; cin >> id_estudiante;
+        cout << "Nombre: "; cin >> nombre;
+        cout << "Apellido: "; cin >> apellido;
+        cout << "Correo: "; cin >> correo;
+        cout << "Fecha de nacimiento (YYYY-MM-DD): "; cin >> fecha;
 
-    switch (opcion) {
-        case 1: {
-            EloquentORM estudiantes(conn, "ESTUDIANTES", { "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO" });
-            cout << "Nombre: "; cin >> nombre;
-            cout << "Apellido: "; cin >> apellido;
-            cout << "Correo: "; cin >> correo;
-            cout << "Fecha de nacimiento (YYYY-MM-DD): "; cin >> fecha;
-            estudiantes.set("NOMBRE", nombre);
-            estudiantes.set("APELLIDO", apellido);
-            estudiantes.set("CORREO", correo);
-            estudiantes.set("FECHA_NACIMIENTO", fecha);
-            cout << (estudiantes.create() ? "Estudiante creado.\n" : "Error al crear.\n");
-            break;
-        }
-        case 2: {
-            EloquentORM docentes(conn, "DOCENTES", { "NOMBRE", "APELLIDO", "ESPECIALIDAD" });
-            cout << "Nombre: "; cin >> nombre;
-            cout << "Apellido: "; cin >> apellido;
-            cout << "Especialidad: "; cin >> especialidad;
-            docentes.set("NOMBRE", nombre);
-            docentes.set("APELLIDO", apellido);
-            docentes.set("ESPECIALIDAD", especialidad);
-            cout << (docentes.create() ? "Docente creado.\n" : "Error al crear.\n");
-            break;
-        }
-        case 3: {
-            EloquentORM cursos(conn, "CURSOS", { "NOMBRE_CURSO", "DESCRIPCION", "CREDITOS", "ID_DOCENTE" });
-            cout << "Nombre del curso: "; cin >> nombre;
-            cout << "Descripción: "; cin >> descripcion;
-            cout << "Créditos: "; cin >> creditos;
-            cout << "ID del docente: "; cin >> id_docente;
-            cursos.set("NOMBRE_CURSO", nombre);
-            cursos.set("DESCRIPCION", descripcion);
-            cursos.set("CREDITOS", to_string(creditos));
-            cursos.set("ID_DOCENTE", to_string(id_docente));
-            cout << (cursos.create() ? "Curso creado.\n" : "Error al crear.\n");
-            break;
-        }
-        case 4: {
-            EloquentORM notas(conn, "NOTAS", { "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO" });
-            cout << "ID Estudiante: "; cin >> id_estudiante;
-            cout << "ID Curso: "; cin >> id_curso;
-            cout << "Tipo (PRESENCIAL/ONLINE): "; cin >> tipo;
-            cout << "Nota: "; cin >> nota;
-            cout << "Fecha (YYYY-MM-DD): "; cin >> fecha;
-            notas.set("ID_ESTUDIANTE", to_string(id_estudiante));
-            notas.set("ID_CURSO", to_string(id_curso));
-            notas.set("TIPO", tipo);
-            notas.set("NOTA", to_string(nota));
-            notas.set("FECHA_REGISTRO", fecha);
-            cout << (notas.create() ? "Nota registrada.\n" : "Error al registrar.\n");
-            break;
-        }
-        case 5:
-            return;
-        default:
-            cout << "Opción no válida.\n";
+        orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
+        orm.set("NOMBRE", nombre);
+        orm.set("APELLIDO", apellido);
+        orm.set("CORREO", correo);
+        orm.set("FECHA_NACIMIENTO", fecha);
+
+        cout << (orm.create() ? "Estudiante creado.\n" : "Error al crear estudiante.\n");
     }
-}
 
-void leer(MySQLConexion& conn) {
-    int opcion;
-    cout << "------ Leer ------" << endl;
-    cout << "1. Estudiantes" << endl;
-    cout << "2. Docentes" << endl;
-    cout << "3. Cursos" << endl;
-    cout << "4. Notas" << endl;
-    cout << "5. Salir" << endl;
-    cin >> opcion;
-
-    switch (opcion) {
-        case 1: {
-            EloquentORM estudiantes(conn, "ESTUDIANTES", { "ID_ESTUDIANTE", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO" });
-            auto lista = estudiantes.getAll();
-            for (auto& reg : lista) {
-                cout << "ID: " << reg["ID_ESTUDIANTE"]
-                     << ", Nombre: " << reg["NOMBRE"]
-                     << ", Apellido: " << reg["APELLIDO"]
-                     << ", Correo: " << reg["CORREO"]
-                     << ", Fecha Nac.: " << reg["FECHA_NACIMIENTO"] << endl;
-            }
-            break;
+    void leer() {
+        auto lista = orm.getAll();
+        for (auto& reg : lista) {
+            cout << "ID: " << reg["ID_ESTUDIANTE"] << ", Nombre: " << reg["NOMBRE"] 
+                 << ", Apellido: " << reg["APELLIDO"] << ", Correo: " << reg["CORREO"]
+                 << ", Fecha: " << reg["FECHA_NACIMIENTO"] << endl;
         }
-        case 2: {
-            EloquentORM docentes(conn, "DOCENTES", { "ID_DOCENTE", "NOMBRE", "APELLIDO", "ESPECIALIDAD" });
-            auto lista = docentes.getAll();
-            for (auto& reg : lista) {
-                cout << "ID: " << reg["ID_DOCENTE"]
-                     << ", Nombre: " << reg["NOMBRE"]
-                     << ", Apellido: " << reg["APELLIDO"]
-                     << ", Especialidad: " << reg["ESPECIALIDAD"] << endl;
-            }
-            break;
-        }
-        case 3: {
-            EloquentORM cursos(conn, "CURSOS", { "ID_CURSO", "NOMBRE_CURSO", "DESCRIPCION", "CREDITOS", "ID_DOCENTE" });
-            auto lista = cursos.getAll();
-            for (auto& reg : lista) {
-                cout << "ID: " << reg["ID_CURSO"]
-                     << ", Curso: " << reg["NOMBRE_CURSO"]
-                     << ", Descripción: " << reg["DESCRIPCION"]
-                     << ", Créditos: " << reg["CREDITOS"]
-                     << ", ID Docente: " << reg["ID_DOCENTE"] << endl;
-            }
-            break;
-        }
-        case 4: {
-            EloquentORM notas(conn, "NOTAS", { "ID_NOTA", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO" });
-            auto lista = notas.getAll();
-            for (auto& reg : lista) {
-                cout << "ID Nota: " << reg["ID_NOTA"]
-                     << ", ID Estudiante: " << reg["ID_ESTUDIANTE"]
-                     << ", ID Curso: " << reg["ID_CURSO"]
-                     << ", Tipo: " << reg["TIPO"]
-                     << ", Nota: " << reg["NOTA"]
-                     << ", Fecha: " << reg["FECHA_REGISTRO"] << endl;
-            }
-            break;
-        }
-        case 5:
-            return;
-        default:
-            cout << "Opción no válida.\n";
     }
-}
 
-void actualizar(MySQLConexion& conn) {
-    int opcion;
-    cout << "------ Actualizar ------" << endl;
-    cout << "Seleccione la tabla a actualizar:" << endl;
-    cout << "1. Estudiante" << endl;
-    cout << "2. Docente" << endl;
-    cout << "3. Curso" << endl;
-    cout << "4. Nota" << endl;
-    cout << "5. Salir" << endl;
-    cin >> opcion;
+    void actualizar() {
+        int id;
+        cout << "ID del estudiante: "; cin >> id;
+        string nombre, apellido, correo, fecha;
+        cout << "Nuevo Nombre: "; cin >> nombre;
+        cout << "Nuevo Apellido: "; cin >> apellido;
+        cout << "Nuevo Correo: "; cin >> correo;
+        cout << "Nueva Fecha (YYYY-MM-DD): "; cin >> fecha;
 
-    switch (opcion) {
-        case 1: { // Estudiante
-            int id;
-            string nombre, apellido, correo, fecha;
-            cout << "ID del estudiante a actualizar: ";
-            cin >> id;
-            cout << "Nuevo nombre: "; cin >> nombre;
-            cout << "Nuevo apellido: "; cin >> apellido;
-            cout << "Nuevo correo: "; cin >> correo;
-            cout << "Nueva fecha de nacimiento (YYYY-MM-DD): "; cin >> fecha;
+        orm.set("ID_ESTUDIANTE", to_string(id));
+        orm.set("NOMBRE", nombre);
+        orm.set("APELLIDO", apellido);
+        orm.set("CORREO", correo);
+        orm.set("FECHA_NACIMIENTO", fecha);
 
-            EloquentORM orm(conn, "ESTUDIANTES", { "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO" });
-            orm.set("NOMBRE", nombre);
-            orm.set("APELLIDO", apellido);
-            orm.set("CORREO", correo);
-            orm.set("FECHA_NACIMIENTO", fecha);
-
-            cout << (orm.update("ID_ESTUDIANTE", to_string(id)) ? "Estudiante actualizado correctamente.\n" : "Error al actualizar estudiante.\n");
-            break;
-        }
-        case 2: { // Docente
-            int id;
-            string nombre, apellido, especialidad;
-            cout << "ID del docente a actualizar: ";
-            cin >> id;
-            cout << "Nuevo nombre: "; cin >> nombre;
-            cout << "Nuevo apellido: "; cin >> apellido;
-            cout << "Nueva especialidad: "; cin >> especialidad;
-
-            EloquentORM orm(conn, "DOCENTES", { "NOMBRE", "APELLIDO", "ESPECIALIDAD" });
-            orm.set("NOMBRE", nombre);
-            orm.set("APELLIDO", apellido);
-            orm.set("ESPECIALIDAD", especialidad);
-
-            cout << (orm.update("ID_DOCENTE", to_string(id)) ? "Docente actualizado correctamente.\n" : "Error al actualizar docente.\n");
-            break;
-        }
-        case 3: { // Curso
-            int id, creditos, id_docente;
-            string nombre, descripcion;
-            cout << "ID del curso a actualizar: ";
-            cin >> id;
-            cout << "Nuevo nombre del curso: "; cin >> nombre;
-            cout << "Nueva descripción: "; cin >> descripcion;
-            cout << "Nuevos créditos: "; cin >> creditos;
-            cout << "Nuevo ID de docente: "; cin >> id_docente;
-
-            EloquentORM orm(conn, "CURSOS", { "NOMBRE_CURSO", "DESCRIPCION", "CREDITOS", "ID_DOCENTE" });
-            orm.set("NOMBRE_CURSO", nombre);
-            orm.set("DESCRIPCION", descripcion);
-            orm.set("CREDITOS", to_string(creditos));
-            orm.set("ID_DOCENTE", to_string(id_docente));
-
-            cout << (orm.update("ID_CURSO", to_string(id)) ? "Curso actualizado correctamente.\n" : "Error al actualizar curso.\n");
-            break;
-        }
-        case 4: { // Nota
-            int id, id_estudiante, id_curso;
-            float nota;
-            string tipo, fecha;
-            cout << "ID de la nota a actualizar: ";
-            cin >> id;
-            cout << "Nuevo ID estudiante: "; cin >> id_estudiante;
-            cout << "Nuevo ID curso: "; cin >> id_curso;
-            cout << "Nuevo tipo (PRESENCIAL/ONLINE): "; cin >> tipo;
-            cout << "Nueva nota: "; cin >> nota;
-            cout << "Nueva fecha (YYYY-MM-DD): "; cin >> fecha;
-
-            EloquentORM orm(conn, "NOTAS", { "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO" });
-            orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
-            orm.set("ID_CURSO", to_string(id_curso));
-            orm.set("TIPO", tipo);
-            orm.set("NOTA", to_string(nota));
-            orm.set("FECHA_REGISTRO", fecha);
-
-            cout << (orm.update("ID_NOTA", to_string(id)) ? "Nota actualizada correctamente.\n" : "Error al actualizar nota.\n");
-            break;
-        }
-        case 5:
-            cout << "Saliendo de actualizar.\n";
-            break;
-        default:
-            cout << "Opción no válida.\n";
+        cout << (orm.update() ? "Estudiante actualizado.\n" : "Error al actualizar estudiante.\n");
     }
-}
 
-
-void eliminar(MySQLConexion& conn) {
-    int opcion;
-    cout << "------ Eliminar ------" << endl;
-    cout << "Seleccione la tabla de donde desea eliminar:" << endl;
-    cout << "1. Estudiante" << endl;
-    cout << "2. Docente" << endl;
-    cout << "3. Curso" << endl;
-    cout << "4. Nota" << endl;
-    cout << "5. Salir" << endl;
-    cin >> opcion;
-
-    int id;
-    switch (opcion) {
-        case 1: {
-            cout << "ID del estudiante a eliminar: ";
-            cin >> id;
-            EloquentORM orm(conn, "ESTUDIANTES", {});
-            cout << (orm.remove("ID_ESTUDIANTE", to_string(id)) ? "Estudiante eliminado correctamente.\n" : "Error al eliminar estudiante.\n");
-            break;
-        }
-        case 2: {
-            cout << "ID del docente a eliminar: ";
-            cin >> id;
-            EloquentORM orm(conn, "DOCENTES", {});
-            cout << (orm.remove("ID_DOCENTE", to_string(id)) ? "Docente eliminado correctamente.\n" : "Error al eliminar docente.\n");
-            break;
-        }
-        case 3: {
-            cout << "ID del curso a eliminar: ";
-            cin >> id;
-            EloquentORM orm(conn, "CURSOS", {});
-            cout << (orm.remove("ID_CURSO", to_string(id)) ? "Curso eliminado correctamente.\n" : "Error al eliminar curso.\n");
-            break;
-        }
-        case 4: {
-            cout << "ID de la nota a eliminar: ";
-            cin >> id;
-            EloquentORM orm(conn, "NOTAS", {});
-            cout << (orm.remove("ID_NOTA", to_string(id)) ? "Nota eliminada correctamente.\n" : "Error al eliminar nota.\n");
-            break;
-        }
-        case 5:
-            cout << "Saliendo de eliminar.\n";
-            break;
-        default:
-            cout << "Opción no válida.\n";
+    void eliminar() {
+        int id;
+        cout << "ID del estudiante: "; cin >> id;
+        orm.set("ID_ESTUDIANTE", to_string(id));
+        orm.find(id);
+        cout << (orm.remove() ? "Estudiante eliminado.\n" : "Error al eliminar estudiante.\n");
     }
-}
+};  
 
+class Docente {
+    MySQLConexion& conn;
+    EloquentORM orm;
+public:
+    Docente(MySQLConexion& conexion)
+        : conn(conexion), orm(conexion, "DOCENTES", {"ID_DOCENTE", "NOMBRE", "ESPECIALIDAD"}) {}
+
+    void crear() {
+        int id_docente;
+        string nombre, especialidad;
+        cout << "ID Docente: "; cin >> id_docente;
+        cout << "Nombre: "; cin >> nombre;
+        cout << "Especialidad: "; cin >> especialidad;
+
+        orm.set("ID_DOCENTE", to_string(id_docente));
+        orm.set("NOMBRE", nombre);
+        orm.set("ESPECIALIDAD", especialidad);
+
+        cout << (orm.create() ? "Docente creado.\n" : "Error al crear docente.\n");
+    }
+
+    void leer() {
+        auto lista = orm.getAll();
+        for (auto& reg : lista) {
+            cout << "ID: " << reg["ID_DOCENTE"] << ", Nombre: " << reg["NOMBRE"] 
+                 << ", Especialidad: " << reg["ESPECIALIDAD"] << endl;
+        }
+    }
+
+    void actualizar() {
+        int id;
+        cout << "ID del docente: "; cin >> id;
+        string nombre, especialidad;
+        cout << "Nuevo Nombre: "; cin >> nombre;
+        cout << "Nueva Especialidad: "; cin >> especialidad;
+
+        orm.set("ID_DOCENTE", to_string(id));
+        orm.set("NOMBRE", nombre);
+        orm.set("ESPECIALIDAD", especialidad);
+
+        cout << (orm.update() ? "Docente actualizado.\n" : "Error al actualizar docente.\n");
+    }
+
+    void eliminar() {
+        int id;
+        cout << "ID del docente: "; cin >> id;
+        orm.set("ID_DOCENTE", to_string(id));
+        cout << (orm.remove() ? "Docente eliminado.\n" : "Error al eliminar docente.\n");
+    }
+};
+
+class Curso {
+    MySQLConexion& conn;
+    EloquentORM orm;
+public:
+    Curso(MySQLConexion& conexion)
+        : conn(conexion), orm(conexion, "CURSOS", {"ID_CURSO", "NOMBRE", "CREDITOS", "ID_DOCENTE"}) {}
+
+    void crear() {
+        string nombre;
+        int creditos, id_docente, id_curso;
+        cout << "ID Curso: "; cin >> id_curso;
+        cout << "Nombre del curso: "; cin >> nombre;
+        cout << "Créditos: "; cin >> creditos;
+        cout << "ID del docente: "; cin >> id_docente;
+
+        orm.set("ID_CURSO", to_string(id_curso));
+        orm.set("NOMBRE", nombre);
+        orm.set("CREDITOS", to_string(creditos));
+        orm.set("ID_DOCENTE", to_string(id_docente));
+
+        cout << (orm.create() ? "Curso creado.\n" : "Error al crear curso.\n");
+    }
+
+    void leer() {
+        auto lista = orm.getAll();
+        for (auto& reg : lista) {
+            cout << "ID: " << reg["ID_CURSO"] << ", Nombre: " << reg["NOMBRE"]
+                 << ", Créditos: " << reg["CREDITOS"]
+                 << ", ID Docente: " << reg["ID_DOCENTE"] << endl;
+        }
+    }
+
+    void actualizar() {
+        int id;
+        cout << "ID del curso: "; cin >> id;
+        string nombre;
+        int creditos, id_docente;
+        cout << "Nuevo Nombre: "; cin >> nombre;
+        cout << "Créditos: "; cin >> creditos;
+        cout << "ID Docente: "; cin >> id_docente;
+
+        orm.set("ID_CURSO", to_string(id));
+        orm.set("NOMBRE", nombre);
+        orm.set("CREDITOS", to_string(creditos));
+        orm.set("ID_DOCENTE", to_string(id_docente));
+
+        cout << (orm.update() ? "Curso actualizado.\n" : "Error al actualizar curso.\n");
+    }
+
+    void eliminar() {
+        int id;
+        cout << "ID del curso: "; cin >> id;
+        orm.set("ID_CURSO", to_string(id));
+        cout << (orm.remove() ? "Curso eliminado.\n" : "Error al eliminar curso.\n");
+    }
+};
+
+class Nota {
+    MySQLConexion& conn;
+    EloquentORM orm;
+public:
+    Nota(MySQLConexion& conexion)
+        : conn(conexion), orm(conexion, "NOTAS", {"ID_NOTA", "ID_ESTUDIANTE", "ID_CURSO", "CALIFICACION"}) {}
+
+    void crear() {
+        int id_estudiante, id_curso, id_nota;
+        double calificacion;
+        cout << "ID Nota: "; cin >> id_nota;
+        cout << "ID Estudiante: "; cin >> id_estudiante;
+        cout << "ID Curso: "; cin >> id_curso;
+        cout << "Calificación: "; cin >> calificacion;
+
+        orm.set("ID_NOTA", to_string(id_nota));
+        orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
+        orm.set("ID_CURSO", to_string(id_curso));
+        orm.set("CALIFICACION", to_string(calificacion));
+
+        cout << (orm.create() ? "Nota registrada.\n" : "Error al registrar nota.\n");
+    }
+
+    void leer() {
+        auto lista = orm.getAll();
+        for (auto& reg : lista) {
+            cout << "ID: " << reg["ID_NOTA"] << ", Estudiante: " << reg["ID_ESTUDIANTE"]
+                 << ", Curso: " << reg["ID_CURSO"]
+                 << ", Calificación: " << reg["CALIFICACION"] << endl;
+        }
+    }
+
+    void actualizar() {
+        int id;
+        cout << "ID de la nota: "; cin >> id;
+        int id_estudiante, id_curso;
+        double calificacion;
+        cout << "Nuevo ID Estudiante: "; cin >> id_estudiante;
+        cout << "Nuevo ID Curso: "; cin >> id_curso;
+        cout << "Nueva Calificación: "; cin >> calificacion;
+
+        orm.set("ID_NOTA", to_string(id));
+        orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
+        orm.set("ID_CURSO", to_string(id_curso));
+        orm.set("CALIFICACION", to_string(calificacion));
+
+        cout << (orm.update() ? "Nota actualizada.\n" : "Error al actualizar nota.\n");
+    }
+
+    void eliminar() {
+        int id;
+        cout << "ID de la nota: "; cin >> id;
+        orm.set("ID_NOTA", to_string(id));
+        cout << (orm.remove() ? "Nota eliminada.\n" : "Error al eliminar nota.\n");
+    }
+};
+
+// ================= MENU PRINCIPAL ====================
+
+void mostrarMenuEntidad(const string& nombreEntidad) {
+    cout << "\n--- " << nombreEntidad << " ---\n";
+    cout << "1. Crear\n";
+    cout << "2. Leer\n";
+    cout << "3. Actualizar\n";
+    cout << "4. Eliminar\n";
+    cout << "5. Volver al menú principal\n";
+}
 
 int main() {
-    MySQLConexion conn("root", "Marioco@2025.", "sistema_de_estudiantes");
+    MySQLConexion conn("root", "2020", "sistema_de_estudiantes");
 
     if (!conn.open()) {
         cerr << "No se pudo conectar a la base de datos." << endl;
         return 1;
     }
 
-    int opcion;
-    do {
-        menu();
-        cout << "Seleccione una opción: ";
-        cin >> opcion;
+    Estudiante estudiante(conn);
+    Docente docente(conn);
+    Curso curso(conn);
+    Nota nota(conn);
 
-        switch (opcion) {
-            case 1: crear(conn); break;
-            case 2: leer(conn); break;
-            case 3: actualizar(conn); break;
-            case 4: eliminar(conn); break;
-            case 5: cout << "Saliendo del sistema...\n"; break;
-            default: cout << "Opción no válida.\n";
+    int opcionEntidad = 0, opcionAccion = 0;
+
+    do {
+        cout << "\n==== MENÚ PRINCIPAL ====\n";
+        cout << "1. Estudiantes\n";
+        cout << "2. Docentes\n";
+        cout << "3. Cursos\n";
+        cout << "4. Notas\n";
+        cout << "5. Salir\n";
+        cout << "Seleccione una opción: ";
+        cin >> opcionEntidad;
+
+        if (opcionEntidad == 5) break;
+
+        mostrarMenuEntidad(
+            opcionEntidad == 1 ? "Estudiantes" :
+            opcionEntidad == 2 ? "Docentes" :
+            opcionEntidad == 3 ? "Cursos" : "Notas"
+        );
+
+        cin >> opcionAccion;
+
+        switch (opcionEntidad) {
+            case 1:
+                if (opcionAccion == 1) estudiante.crear();
+                else if (opcionAccion == 2) estudiante.leer();
+                else if (opcionAccion == 3) estudiante.actualizar();
+                else if (opcionAccion == 4) estudiante.eliminar();
+                break;
+            case 2:
+                if (opcionAccion == 1) docente.crear();
+                else if (opcionAccion == 2) docente.leer();
+                else if (opcionAccion == 3) docente.actualizar();
+                else if (opcionAccion == 4) docente.eliminar();
+                break;
+            case 3:
+                if (opcionAccion == 1) curso.crear();
+                else if (opcionAccion == 2) curso.leer();
+                else if (opcionAccion == 3) curso.actualizar();
+                else if (opcionAccion == 4) curso.eliminar();
+                break;
+            case 4:
+                if (opcionAccion == 1) nota.crear();
+                else if (opcionAccion == 2) nota.leer();
+                else if (opcionAccion == 3) nota.actualizar();
+                else if (opcionAccion == 4) nota.eliminar();
+                break;
         }
 
-    } while (opcion != 5);
+    } while (true);
 
+    conn.close();
+    cout << "Conexión cerrada. Saliendo del sistema...\n";
     return 0;
 }
