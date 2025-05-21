@@ -6,17 +6,36 @@
 using namespace std;
 
 // ================= ENTIDADES ====================
-
+/*
+@brief Clase que representa un estudiante
+*
+* Permite realizar operaciones CRUD sobre la tabla de estudiantes.
+*/
 class Estudiante {
     MySQLConexion& conn;
     EloquentORM orm;
 public:
+    /*
+     * @brief Constructor de la clase Estudiante.
+     *
+     * Inicializa la conexión a la base de datos y la tabla de estudiantes.
+     *
+     * @param conexion Referencia a la conexión MySQL.
+     */
     Estudiante(MySQLConexion& conexion)
         : conn(conexion), orm(conexion, "ESTUDIANTES", {"ID_ESTUDIANTE", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"}) {}
 
+    /*
+     * @brief Crea un nuevo estudiante.
+     *
+     * Solicita al usuario los datos del estudiante y lo inserta en la base de datos.
+     */
     void crear() {
+        // Crear un nuevo objeto EloquentORM para la tabla estudiantes
         EloquentORM alumno(conn, "estudiantes", {"id", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"});
+        // Solicitar datos al usuario
         int idEstudiante;
+        // Variables para almacenar los datos
         string nombre, apellido, correo, fecha;
         cout << "ID Estudiante: "; cin >> idEstudiante;
         cout << "Nombre: "; cin >> nombre;
@@ -32,8 +51,13 @@ public:
 
         cout << (alumno.create() ? "Alumno creado.\n" : "Error al crear el alumno.\n");
     }
-
+    /*
+     * @brief Lee todos los estudiantes de la base de datos.
+     *
+     * Muestra en pantalla los datos de todos los estudiantes registrados.
+     */
     void leer() {
+        // Obtener todos los registros de la tabla estudiantes
         auto lista = orm.getAll();
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Nombre: " << reg["NOMBRE"] 
@@ -41,9 +65,14 @@ public:
                  << ", Fecha: " << reg["FECHA_NACIMIENTO"] << endl;
         }
     }
-
+    /*
+     * @brief Actualiza los datos de un estudiante.
+     *
+     * Solicita al usuario el ID del estudiante y los nuevos datos, y actualiza la base de datos.
+     */
     void actualizar() {
         EloquentORM orm(conn, "estudiantes", {"id", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"});
+        // Solicitar el ID del estudiante a actualizar
         int id;
         cout << "ID del estudiante: "; cin >> id;
         string nombre, apellido, correo, fecha;
@@ -60,9 +89,14 @@ public:
 
         cout << (orm.update() ? "Estudiante actualizado.\n" : "Error al actualizar estudiante.\n");
     }
-
+    /*
+     * @brief Elimina un estudiante de la base de datos.
+     *
+     * Solicita al usuario el ID del estudiante a eliminar y lo elimina de la base de datos.
+     */
     void eliminar() {
         EloquentORM alumno(conn,"estudiantes",{"NOMBRE", "APELLIDO", "CORREO","FECHA_NACIMIENTO"});
+        // Solicitar el ID del estudiante a eliminar
         int id;
         cout << "Ingrese el id de estudiante que desea eliminar: \n"; 
         cin >> id;
@@ -71,16 +105,24 @@ public:
         alumno.remove(); 
     }
 };  
-
+/*
+* @brief Clase que representa un docente
+*/
 class Docente {
     MySQLConexion& conn;
     EloquentORM orm;
 public:
     Docente(MySQLConexion& conexion)
         : conn(conexion), orm(conexion, "DOCENTES", {"ID_DOCENTE", "NOMBRE", "ESPECIALIDAD"}) {}
-
+    
+    /*
+     * @brief Crea un nuevo docente.
+     *
+     * Solicita al usuario los datos del docente y lo inserta en la base de datos.
+     */
     void crear() {
         EloquentORM profesor(conn, "DOCENTES", {"id", "NOMBRE", "APELLIDO", "ESPECIALIDAD"});
+        // Solicitar datos al usuario
         int id_docente;
         string nombre, apellido, especialidad;
         cout << "ID Docente: "; cin >> id_docente;
@@ -95,8 +137,13 @@ public:
 
         cout << (profesor.create() ? "Docente creado.\n" : "Error al crear docente.\n");
     }
-
+    /*
+     * @brief Lee todos los docentes de la base de datos.
+     *
+     * Muestra en pantalla los datos de todos los docentes registrados.
+     */
     void leer() {
+        // Obtener todos los registros de la tabla docentes
         auto lista = orm.getAll();
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Nombre: " << reg["NOMBRE"] 
@@ -104,9 +151,14 @@ public:
                  << ", Especialidad: " << reg["ESPECIALIDAD"] << endl;
         }
     }
-
+    /*
+     * @brief Actualiza los datos de un docente.
+     *
+     * Solicita al usuario el ID del docente y los nuevos datos, y actualiza la base de datos.
+     */
     void actualizar() {
         EloquentORM orm(conn, "docentes", {"id", "NOMBRE", "APELLIDO", "ESPECIALIDAD"});
+        // Solicitar el ID del docente a actualizar
         int id;
         cout << "ID del docente: "; cin >> id;
         string nombre, apellido, especialidad;
@@ -121,9 +173,14 @@ public:
 
         cout << (orm.update() ? "Docente actualizado.\n" : "Error al actualizar docente.\n");
     }
-
+    /*
+     * @brief Elimina un docente de la base de datos.
+     *
+     * Solicita al usuario el ID del docente a eliminar y lo elimina de la base de datos.
+     */
     void eliminar() {
         EloquentORM profesor(conn,"docentes",{"NOMBRE", "APELLIDO", "ESPECIALIDAD"});
+        // Solicitar el ID del docente a eliminar
         int id;
         cout << "Ingrese el id de docente que desea eliminar: \n"; 
         cin >> id;
@@ -132,16 +189,31 @@ public:
         profesor.remove(); 
     }
 };
-
+/*
+*
+* @brief Clase que representa un curso
+*/
 class Curso {
     MySQLConexion& conn;
     EloquentORM orm;
 public:
+    /*
+     * @brief Constructor de la clase Curso.
+     *
+     * Inicializa la conexión a la base de datos y la tabla de cursos.
+     *
+     * @param conexion Referencia a la conexión MySQL.
+     */
     Curso(MySQLConexion& conexion)
         : conn(conexion), orm(conexion, "CURSOS", {"ID_CURSO", "NOMBRE", "CREDITOS", "ID_DOCENTE"}) {}
-
+    /*
+     * @brief Crea un nuevo curso.
+     *
+     * Solicita al usuario los datos del curso y lo inserta en la base de datos.
+     */
     void crear() {
         EloquentORM materia(conn, "cursos", {"id", "NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
+        // Solicitar datos al usuario
         string nombre, descripcion;
         int creditos, id_docente, id_curso;
         cout << "ID Curso: "; cin >> id_curso;
@@ -158,8 +230,13 @@ public:
 
         cout << (materia.create() ? "Curso creado.\n" : "Error al crear curso.\n");
     }
-
+    /*
+     * @brief Lee todos los cursos de la base de datos.
+     *
+     * Muestra en pantalla los datos de todos los cursos registrados.
+     */
     void leer() {
+        // Obtener todos los registros de la tabla cursos
         auto lista = orm.getAll();
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Nombre: " << reg["NOMBRE_CURSO"]
@@ -168,9 +245,14 @@ public:
                  << ", ID Docente: " << reg["ID_DOCENTE"] << endl;
         }
     }
-
+    /*
+     * @brief Actualiza los datos de un curso.
+     *
+     * Solicita al usuario el ID del curso y los nuevos datos, y actualiza la base de datos.
+     */
     void actualizar() {
         EloquentORM orm(conn, "cursos", {"id", "NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
+        // Solicitar el ID del curso a actualizar
         int id;
         cout << "ID del curso: "; cin >> id;
         string nombre;
@@ -186,7 +268,11 @@ public:
 
         cout << (orm.update() ? "Curso actualizado.\n" : "Error al actualizar curso.\n");
     }
-
+    /*
+     * @brief Elimina un curso de la base de datos.
+     *
+     * Solicita al usuario el ID del curso a eliminar y lo elimina de la base de datos.
+     */
     void eliminar() {
         EloquentORM materia(conn,"cursos",{"NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
         int id;
@@ -197,16 +283,25 @@ public:
         materia.remove();
     }
 };
-
+/*    
+*
+* @brief Clase que representa una nota  
+*/
 class Nota {
     MySQLConexion& conn;
     EloquentORM orm;
 public:
     Nota(MySQLConexion& conexion)
         : conn(conexion), orm(conexion, "NOTAS", {"ID_NOTA", "ID_ESTUDIANTE", "ID_CURSO", "CALIFICACION"}) {}
-
+    /*
+     * @brief Crea una nueva nota.
+     *
+     * Solicita al usuario los datos de la nota y lo inserta en la base de datos.
+     */
     void crear() {
+        // Crear un nuevo objeto EloquentORM para la tabla notas
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"});
+        // Solicitar datos al usuario
         int id_estudiante, id_curso, id_nota;
         double calificacion;
         string fecha, tipo;
@@ -226,8 +321,13 @@ public:
 
         cout << (orm.create() ? "Nota registrada.\n" : "Error al registrar nota.\n");
     }
-
+    /*
+     * @brief Lee todas las notas de la base de datos.
+     *
+     * Muestra en pantalla los datos de todas las notas registradas.
+     */
     void leer() {
+        // Obtener todos los registros de la tabla notas
         auto lista = orm.getAll();
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Estudiante: " << reg["ID_ESTUDIANTE"]
@@ -236,11 +336,17 @@ public:
                  << "Tipo: " << reg["TIPO"] << ", Fecha: " << reg["FECHA_REGISTRO"] << endl;
         }
     }
-
+    /*
+     * @brief Actualiza los datos de una nota.
+     *
+     * Solicita al usuario el ID de la nota y los nuevos datos, y actualiza la base de datos.
+     */
     void actualizar() {
-        EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"});    
+        EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"}); 
+        // Solicitar el ID de la nota a actualizar   
         int id;
         cout << "ID de la nota: "; cin >> id;
+        // Solicitar nuevos datos
         int id_estudiante, id_curso;
         double calificacion;
         string fecha, tipo;
@@ -259,9 +365,14 @@ public:
 
         cout << (orm.update() ? "Nota actualizada.\n" : "Error al actualizar nota.\n");
     }
-
+    /*
+     * @brief Elimina una nota de la base de datos.
+     *
+     * Solicita al usuario el ID de la nota a eliminar y lo elimina de la base de datos.
+     */
     void eliminar() {
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"});
+        // Solicitar el ID de la nota a eliminar
         int id;
         cout << "ID de la nota: "; cin >> id;
         orm.find(id);
@@ -272,6 +383,11 @@ public:
 
 // ================= MENU PRINCIPAL ====================
 
+/*
+ * @brief Muestra el menú de opciones para cada entidad.
+ *
+ * @param nombreEntidad Nombre de la entidad (Estudiantes, Docentes, Cursos, Notas).
+ */
 void mostrarMenuEntidad(const string& nombreEntidad) {
     cout << "\n--- " << nombreEntidad << " ---\n";
     cout << "1. Crear\n";
@@ -282,18 +398,23 @@ void mostrarMenuEntidad(const string& nombreEntidad) {
 }
 
 int main() {
+    // Crear una conexión a la base de datos
     MySQLConexion conn("root", "2020", "sistema_de_estudiantes");
 
+    // Conectar a la base de datos
     if (!conn.open()) {
         cerr << "No se pudo conectar a la base de datos." << endl;
         return 1;
     }
 
+    // Crear instancias de las entidades
     Estudiante estudiante(conn);
     Docente docente(conn);
     Curso curso(conn);
     Nota nota(conn);
 
+    // Mostrar el menú principal
+    cout << "Bienvenido al sistema de gestión de estudiantes.\n";
     int opcionEntidad = 0, opcionAccion = 0;
 
     do {
@@ -345,7 +466,9 @@ int main() {
 
     } while (true);
 
+    // Cerrar la conexión a la base de datos
     conn.close();
     cout << "Conexión cerrada. Saliendo del sistema...\n";
     return 0;
 }
+// FIN DE CÓDIGO
