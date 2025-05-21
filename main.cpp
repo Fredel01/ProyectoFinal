@@ -30,7 +30,7 @@ public:
      *
      * Solicita al usuario los datos del estudiante y lo inserta en la base de datos.
      */
-    void crear() {
+    void crear_estudiante() {
         // Crear un nuevo objeto EloquentORM para la tabla estudiantes
         EloquentORM alumno(conn, "estudiantes", {"id", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"});
         // Solicitar datos al usuario
@@ -56,7 +56,7 @@ public:
      *
      * Muestra en pantalla los datos de todos los estudiantes registrados.
      */
-    void leer() {
+    void leer_estudiantes() {
         // Obtener todos los registros de la tabla estudiantes
         auto lista = orm.getAll();
         for (auto& reg : lista) {
@@ -70,7 +70,7 @@ public:
      *
      * Solicita al usuario el ID del estudiante y los nuevos datos, y actualiza la base de datos.
      */
-    void actualizar() {
+    void actualizar_estudiante() {
         EloquentORM orm(conn, "estudiantes", {"id", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"});
         // Solicitar el ID del estudiante a actualizar
         int id;
@@ -94,7 +94,7 @@ public:
      *
      * Solicita al usuario el ID del estudiante a eliminar y lo elimina de la base de datos.
      */
-    void eliminar() {
+    void eliminar_estudiante() {
         EloquentORM alumno(conn,"estudiantes",{"NOMBRE", "APELLIDO", "CORREO","FECHA_NACIMIENTO"});
         // Solicitar el ID del estudiante a eliminar
         int id;
@@ -120,17 +120,17 @@ public:
      *
      * Solicita al usuario los datos del docente y lo inserta en la base de datos.
      */
-    void crear() {
+    void crear_docente() {
         EloquentORM profesor(conn, "DOCENTES", {"id", "NOMBRE", "APELLIDO", "ESPECIALIDAD"});
         // Solicitar datos al usuario
-        int id_docente;
+        int idDocente;
         string nombre, apellido, especialidad;
-        cout << "ID Docente: "; cin >> id_docente;
+        cout << "ID Docente: "; cin >> idDocente;
         cout << "Nombre: "; cin.ignore(); getline(cin, nombre);
         cout << "Apellido: "; cin.ignore(); getline(cin, apellido);
         cout << "Especialidad: "; cin >> especialidad;
 
-        profesor.set("id", to_string(id_docente));
+        profesor.set("id", to_string(idDocente));
         profesor.set("NOMBRE", nombre);
         profesor.set("APELLIDO", apellido);
         profesor.set("ESPECIALIDAD", especialidad);
@@ -142,7 +142,7 @@ public:
      *
      * Muestra en pantalla los datos de todos los docentes registrados.
      */
-    void leer() {
+    void leer_docentes() {
         // Obtener todos los registros de la tabla docentes
         auto lista = orm.getAll();
         for (auto& reg : lista) {
@@ -156,7 +156,7 @@ public:
      *
      * Solicita al usuario el ID del docente y los nuevos datos, y actualiza la base de datos.
      */
-    void actualizar() {
+    void actualizar_docente() {
         EloquentORM orm(conn, "docentes", {"id", "NOMBRE", "APELLIDO", "ESPECIALIDAD"});
         // Solicitar el ID del docente a actualizar
         int id;
@@ -178,7 +178,7 @@ public:
      *
      * Solicita al usuario el ID del docente a eliminar y lo elimina de la base de datos.
      */
-    void eliminar() {
+    void eliminar_docente() {
         EloquentORM profesor(conn,"docentes",{"NOMBRE", "APELLIDO", "ESPECIALIDAD"});
         // Solicitar el ID del docente a eliminar
         int id;
@@ -211,22 +211,22 @@ public:
      *
      * Solicita al usuario los datos del curso y lo inserta en la base de datos.
      */
-    void crear() {
+    void crear_curso() {
         EloquentORM materia(conn, "cursos", {"id", "NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
         // Solicitar datos al usuario
         string nombre, descripcion;
-        int creditos, id_docente, id_curso;
-        cout << "ID Curso: "; cin >> id_curso;
+        int creditos, idDocente, idCurso;
+        cout << "ID Curso: "; cin >> idCurso;
         cout << "Nombre del curso: "; cin.ignore(); getline(cin, nombre);
         cout << "Créditos: "; cin >> creditos;
         cout << "Descripcion: "; cin.ignore(); getline(cin, descripcion);
-        cout << "ID del docente: "; cin >> id_docente;
+        cout << "ID del docente: "; cin >> idDocente;
 
-        materia.set("id", to_string(id_curso));
+        materia.set("id", to_string(idCurso));
         materia.set("NOMBRE_CURSO", nombre);
         materia.set("CREDITOS", to_string(creditos));
         materia.set("DESCRIPCION", descripcion);
-        materia.set("ID_DOCENTE", to_string(id_docente));
+        materia.set("ID_DOCENTE", to_string(idDocente));
 
         cout << (materia.create() ? "Curso creado.\n" : "Error al crear curso.\n");
     }
@@ -235,7 +235,7 @@ public:
      *
      * Muestra en pantalla los datos de todos los cursos registrados.
      */
-    void leer() {
+    void leer_cursos() {
         // Obtener todos los registros de la tabla cursos
         auto lista = orm.getAll();
         for (auto& reg : lista) {
@@ -250,21 +250,21 @@ public:
      *
      * Solicita al usuario el ID del curso y los nuevos datos, y actualiza la base de datos.
      */
-    void actualizar() {
+    void actualizar_curso() {
         EloquentORM orm(conn, "cursos", {"id", "NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
         // Solicitar el ID del curso a actualizar
         int id;
         cout << "ID del curso: "; cin >> id;
         string nombre;
-        int creditos, id_docente;
+        int creditos, idDocente;
         cout << "Nuevo Nombre: "; cin.ignore(); getline(cin, nombre);
         cout << "Créditos: "; cin >> creditos;
-        cout << "ID Docente: "; cin >> id_docente;
+        cout << "ID Docente: "; cin >> idDocente;
 
         orm.set("id", to_string(id));
         orm.set("NOMBRE_CURSO", nombre);
         orm.set("CREDITOS", to_string(creditos));
-        orm.set("ID_DOCENTE", to_string(id_docente));
+        orm.set("ID_DOCENTE", to_string(idDocente));
 
         cout << (orm.update() ? "Curso actualizado.\n" : "Error al actualizar curso.\n");
     }
@@ -273,7 +273,7 @@ public:
      *
      * Solicita al usuario el ID del curso a eliminar y lo elimina de la base de datos.
      */
-    void eliminar() {
+    void eliminar_curso() {
         EloquentORM materia(conn,"cursos",{"NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
         int id;
         cout << "Ingrese el id de curso que desea eliminar: \n"; 
@@ -298,23 +298,23 @@ public:
      *
      * Solicita al usuario los datos de la nota y lo inserta en la base de datos.
      */
-    void crear() {
+    void crear_nota() {
         // Crear un nuevo objeto EloquentORM para la tabla notas
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"});
         // Solicitar datos al usuario
-        int id_estudiante, id_curso, id_nota;
+        int idEstudiante, idCurso, idNota;
         double calificacion;
         string fecha, tipo;
-        cout << "ID Nota: "; cin >> id_nota;
-        cout << "ID Estudiante: "; cin >> id_estudiante;
-        cout << "ID Curso: "; cin >> id_curso;
+        cout << "ID Nota: "; cin >> idNota;
+        cout << "ID Estudiante: "; cin >> idEstudiante;
+        cout << "ID Curso: "; cin >> idCurso;
         cout << "Tipo: "; cin >> tipo;
         cout << "Calificación: "; cin >> calificacion;
         cout << "Fecha de registro (YYYY-MM-DD): "; cin >> fecha;
 
-        orm.set("id", to_string(id_nota));
-        orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
-        orm.set("ID_CURSO", to_string(id_curso));
+        orm.set("id", to_string(idNota));
+        orm.set("ID_ESTUDIANTE", to_string(idEstudiante));
+        orm.set("ID_CURSO", to_string(idCurso));
         orm.set("NOTA", to_string(calificacion));
         orm.set("TIPO", tipo);
         orm.set("FECHA_REGISTRO", fecha);
@@ -326,7 +326,7 @@ public:
      *
      * Muestra en pantalla los datos de todas las notas registradas.
      */
-    void leer() {
+    void leer_notas() {
         // Obtener todos los registros de la tabla notas
         auto lista = orm.getAll();
         for (auto& reg : lista) {
@@ -341,24 +341,24 @@ public:
      *
      * Solicita al usuario el ID de la nota y los nuevos datos, y actualiza la base de datos.
      */
-    void actualizar() {
+    void actualizar_nota() {
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"}); 
         // Solicitar el ID de la nota a actualizar   
         int id;
         cout << "ID de la nota: "; cin >> id;
         // Solicitar nuevos datos
-        int id_estudiante, id_curso;
+        int idEstudiante, idCurso;
         double calificacion;
         string fecha, tipo;
-        cout << "Nuevo ID Estudiante: "; cin >> id_estudiante;
-        cout << "Nuevo ID Curso: "; cin >> id_curso;
+        cout << "Nuevo ID Estudiante: "; cin >> idEstudiante;
+        cout << "Nuevo ID Curso: "; cin >> idCurso;
         cout << "Nuevo Tipo: "; cin.ignore(); getline(cin, tipo);
         cout << "Nueva Calificación: "; cin >> calificacion;
         cout << "Nueva Fecha (YYYY-MM-DD): "; cin >> fecha;
 
         orm.set("id", to_string(id));
-        orm.set("ID_ESTUDIANTE", to_string(id_estudiante));
-        orm.set("ID_CURSO", to_string(id_curso));
+        orm.set("ID_ESTUDIANTE", to_string(idEstudiante));
+        orm.set("ID_CURSO", to_string(idCurso));
         orm.set("TIPO", tipo);
         orm.set("NOTA", to_string(calificacion));
         orm.set("FECHA_REGISTRO", fecha);
@@ -370,7 +370,7 @@ public:
      *
      * Solicita al usuario el ID de la nota a eliminar y lo elimina de la base de datos.
      */
-    void eliminar() {
+    void eliminar_nota() {
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"});
         // Solicitar el ID de la nota a eliminar
         int id;
@@ -388,7 +388,7 @@ public:
  *
  * @param nombreEntidad Nombre de la entidad (Estudiantes, Docentes, Cursos, Notas).
  */
-void mostrarMenuEntidad(const string& nombreEntidad) {
+void mostrar_menu_entidad(const string& nombreEntidad) {
     cout << "\n--- " << nombreEntidad << " ---\n";
     cout << "1. Crear\n";
     cout << "2. Leer\n";
@@ -397,6 +397,14 @@ void mostrarMenuEntidad(const string& nombreEntidad) {
     cout << "5. Volver al menú principal\n";
 }
 
+// ================= MAIN ====================
+/*
+ * @brief Función principal del programa.
+ *
+ * Crea una conexión a la base de datos y permite al usuario interactuar con el sistema de gestión de estudiantes.
+ *
+ * @return int Código de salida del programa.
+ */
 int main() {
     // Crear una conexión a la base de datos
     MySQLConexion conn("root", "2020", "sistema_de_estudiantes");
@@ -429,7 +437,7 @@ int main() {
 
         if (opcionEntidad == 5) break;
 
-        mostrarMenuEntidad(
+        mostrar_menu_entidad(
             opcionEntidad == 1 ? "Estudiantes" :
             opcionEntidad == 2 ? "Docentes" :
             opcionEntidad == 3 ? "Cursos" : "Notas"
@@ -439,28 +447,28 @@ int main() {
 
         switch (opcionEntidad) {
             case 1:
-                if (opcionAccion == 1) estudiante.crear();
-                else if (opcionAccion == 2) estudiante.leer();
-                else if (opcionAccion == 3) estudiante.actualizar();
-                else if (opcionAccion == 4) estudiante.eliminar();
+                if (opcionAccion == 1) estudiante.crear_estudiante();
+                else if (opcionAccion == 2) estudiante.leer_estudiantes();
+                else if (opcionAccion == 3) estudiante.actualizar_estudiante();
+                else if (opcionAccion == 4) estudiante.eliminar_estudiante();
                 break;
             case 2:
-                if (opcionAccion == 1) docente.crear();
-                else if (opcionAccion == 2) docente.leer();
-                else if (opcionAccion == 3) docente.actualizar();
-                else if (opcionAccion == 4) docente.eliminar();
+                if (opcionAccion == 1) docente.crear_docente();
+                else if (opcionAccion == 2) docente.leer_docentes();
+                else if (opcionAccion == 3) docente.actualizar_docente();
+                else if (opcionAccion == 4) docente.eliminar_docente();
                 break;
             case 3:
-                if (opcionAccion == 1) curso.crear();
-                else if (opcionAccion == 2) curso.leer();
-                else if (opcionAccion == 3) curso.actualizar();
-                else if (opcionAccion == 4) curso.eliminar();
+                if (opcionAccion == 1) curso.crear_curso();
+                else if (opcionAccion == 2) curso.leer_cursos();
+                else if (opcionAccion == 3) curso.actualizar_curso();
+                else if (opcionAccion == 4) curso.eliminar_curso();
                 break;
             case 4:
-                if (opcionAccion == 1) nota.crear();
-                else if (opcionAccion == 2) nota.leer();
-                else if (opcionAccion == 3) nota.actualizar();
-                else if (opcionAccion == 4) nota.eliminar();
+                if (opcionAccion == 1) nota.crear_nota();
+                else if (opcionAccion == 2) nota.leer_notas();
+                else if (opcionAccion == 3) nota.actualizar_nota();
+                else if (opcionAccion == 4) nota.eliminar_nota();
                 break;
         }
 
