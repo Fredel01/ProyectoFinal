@@ -2,8 +2,66 @@
 #include "EloquentORM.h"
 #include <iostream>
 #include <string>
+#include <limits>
+#include <regex>
 
 using namespace std;
+
+// =================Funciones======================
+/*
+ * @brief Función para limpiar la pantalla.
+ */
+void limpiar_pantalla() {
+    cout << "\033[2J\033[H"; 
+}
+/*
+ * @brief Función para validar el id.
+ * @param id Referencia al id a validar.
+ */
+void validar_id(int& id) {
+    string entrada;
+    regex patron("^[1-9][0-9]*$"); // Solo números enteros positivos, sin ceros a la izquierda
+    while (true) {
+        getline(cin, entrada);
+        if (regex_match(entrada, patron)) {
+            id = stoi(entrada);
+            break;
+        }
+        if (cin.fail() || id <= 0) {
+            // Si la entrada no es un número válido o es menor o igual a 0
+            cout << "ID incorrecto. Ingrese un ID valido: " << endl;
+            cin.clear(); // Limpiar el estado de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada inválida
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer de entrada
+            break;
+        }
+    }    
+}
+
+enum Colors { 
+    BLACK = 0,
+    BLUE = 1,
+    GREEN = 2,
+    CYAN = 3,
+    RED = 4,
+    MAGENTA = 5,
+    BROWN = 6,
+    LGREY = 7,
+    DGREY = 8,
+    LBLUE = 9,
+    LGREEN = 10,
+    LCYAN = 11,
+    LRED = 12,
+    LMAGENTA = 13,
+    YELLOW = 14,
+    WHITE = 15
+};
+void Color(int Background, int Text){ // function to change colors
+ HANDLE Console = GetStdHandle(STD_OUTPUT_HANDLE); 
+ int    New_Color= Text + (Background * 16);
+ SetConsoleTextAttribute(Console, New_Color); 
+}
 
 // ================= ENTIDADES ====================
 /*
@@ -37,11 +95,11 @@ public:
         int idEstudiante;
         // Variables para almacenar los datos
         string nombre, apellido, correo, fecha;
-        cout << "ID Estudiante: "; cin >> idEstudiante;
+        cout << "ID Estudiante: "; cin >> idEstudiante; validar_id(idEstudiante);
         cout << "Nombre: "; cin >> nombre;
         cout << "Apellido: "; cin >> apellido;
         cout << "Correo: "; cin >> correo;
-        cout << "Fecha de nacimiento (YYYY-MM-DD): "; cin >> fecha;
+        cout << "Fecha de nacimiento (YYYY-MM-DD): "; cin >> fecha; 
 
         alumno.set("id", to_string(idEstudiante));
         alumno.set("NOMBRE", nombre);
@@ -74,7 +132,7 @@ public:
         EloquentORM orm(conn, "estudiantes", {"id", "NOMBRE", "APELLIDO", "CORREO", "FECHA_NACIMIENTO"});
         // Solicitar el ID del estudiante a actualizar
         int id;
-        cout << "ID del estudiante: "; cin >> id;
+        cout << "ID del estudiante: "; cin >> id; validar_id(id);
         string nombre, apellido, correo, fecha;
         cout << "Nuevo Nombre: "; cin >> nombre;
         cout << "Nuevo Apellido: "; cin >> apellido;
@@ -98,11 +156,23 @@ public:
         EloquentORM alumno(conn,"estudiantes",{"NOMBRE", "APELLIDO", "CORREO","FECHA_NACIMIENTO"});
         // Solicitar el ID del estudiante a eliminar
         int id;
-        cout << "Ingrese el id de estudiante que desea eliminar: \n"; 
-        cin >> id;
-        alumno.find(id);
+        cout << "Ingrese el id de estudiante que desea eliminar: \n";  
+        cin >> id; 
+
+        // Validar el ID ingresado
+        if (cin.fail() || id <= 0) {
+            cout << "ID incorrecto. Ingrese un ID valido: " << endl;
+            cin.clear(); // Limpiar el estado de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada inválida
+        } 
+        else if (alumno.find(id)) {
         cout << "Se elimino al alumno: " << alumno.get("NOMBRE") << endl;
         alumno.remove(); 
+        }
+        else {
+            cout << "No se encontro un estudiante con el ID: " << id << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer de entrada
+        }
     }
 };  
 /*
@@ -125,9 +195,9 @@ public:
         // Solicitar datos al usuario
         int idDocente;
         string nombre, apellido, especialidad;
-        cout << "ID Docente: "; cin >> idDocente;
-        cout << "Nombre: "; cin.ignore(); getline(cin, nombre);
-        cout << "Apellido: "; cin.ignore(); getline(cin, apellido);
+        cout << "ID Docente: "; cin >> idDocente; validar_id(idDocente);   
+        cout << "Nombre: "; getline(cin, nombre);
+        cout << "Apellido: "; getline(cin, apellido);
         cout << "Especialidad: "; cin >> especialidad;
 
         profesor.set("id", to_string(idDocente));
@@ -160,11 +230,11 @@ public:
         EloquentORM orm(conn, "docentes", {"id", "NOMBRE", "APELLIDO", "ESPECIALIDAD"});
         // Solicitar el ID del docente a actualizar
         int id;
-        cout << "ID del docente: "; cin >> id;
+        cout << "ID del docente: "; cin >> id; validar_id(id);
         string nombre, apellido, especialidad;
         cout << "Nuevo Nombre: "; cin >> nombre;
         cout << "Nuevo Apellido: "; cin >> apellido;
-        cout << "Nueva Especialidad: "; cin.ignore(); getline(cin, especialidad);
+        cout << "Nueva Especialidad: "; getline(cin, especialidad);
 
         orm.set("id", to_string(id));
         orm.set("NOMBRE", nombre);
@@ -184,9 +254,20 @@ public:
         int id;
         cout << "Ingrese el id de docente que desea eliminar: \n"; 
         cin >> id;
-        profesor.find(id);
+         // Validar el ID ingresado
+        if (cin.fail() || id <= 0) {
+            cout << "ID incorrecto. Ingrese un ID valido: " << endl;
+            cin.clear(); // Limpiar el estado de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada inválida
+        } 
+        else if (profesor.find(id)) {
         cout << "Se elimino al docente: " << profesor.get("NOMBRE") << endl;
         profesor.remove(); 
+        }
+        else {
+            cout << "No se encontro un docente con el ID: " << id << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer de entrada
+        }
     }
 };
 /*
@@ -216,10 +297,10 @@ public:
         // Solicitar datos al usuario
         string nombre, descripcion;
         int creditos, idDocente, idCurso;
-        cout << "ID Curso: "; cin >> idCurso;
-        cout << "Nombre del curso: "; cin.ignore(); getline(cin, nombre);
-        cout << "Créditos: "; cin >> creditos;
-        cout << "Descripcion: "; cin.ignore(); getline(cin, descripcion);
+        cout << "ID Curso: "; cin >> idCurso; validar_id(idCurso);
+        cout << "Nombre del curso: "; getline(cin, nombre);
+        cout << "Creditos: "; cin >> creditos;
+        cout << "Descripcion: "; getline(cin, descripcion);
         cout << "ID del docente: "; cin >> idDocente;
 
         materia.set("id", to_string(idCurso));
@@ -240,8 +321,8 @@ public:
         auto lista = orm.getAll();
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Nombre: " << reg["NOMBRE_CURSO"]
-                 << ", Créditos: " << reg["CREDITOS"]
-                 << ", Descripción: " << reg["DESCRIPCION"]
+                 << ", Creditos: " << reg["CREDITOS"]
+                 << ", Descripcion: " << reg["DESCRIPCION"]
                  << ", ID Docente: " << reg["ID_DOCENTE"] << endl;
         }
     }
@@ -254,15 +335,17 @@ public:
         EloquentORM orm(conn, "cursos", {"id", "NOMBRE_CURSO", "CREDITOS", "DESCRIPCION", "ID_DOCENTE"});
         // Solicitar el ID del curso a actualizar
         int id;
-        cout << "ID del curso: "; cin >> id;
-        string nombre;
+        cout << "ID del curso: "; cin >> id; validar_id(id);
+        string nombre, descripcion;
         int creditos, idDocente;
-        cout << "Nuevo Nombre: "; cin.ignore(); getline(cin, nombre);
-        cout << "Créditos: "; cin >> creditos;
+        cout << "Nuevo Nombre: "; getline(cin, nombre);
+        cout << "Nueva Descripcion: "; getline(cin, descripcion);
+        cout << "Creditos: "; cin >> creditos;
         cout << "ID Docente: "; cin >> idDocente;
 
         orm.set("id", to_string(id));
         orm.set("NOMBRE_CURSO", nombre);
+        orm.set("DESCRIPCION", descripcion);
         orm.set("CREDITOS", to_string(creditos));
         orm.set("ID_DOCENTE", to_string(idDocente));
 
@@ -278,9 +361,20 @@ public:
         int id;
         cout << "Ingrese el id de curso que desea eliminar: \n"; 
         cin >> id;
-        materia.find(id);
-        cout << "Se elimino el curso: " << materia.get("NOMBRE_CURSO") << endl;
-        materia.remove();
+        // Validar el ID ingresado
+        if (cin.fail() || id <= 0) {
+            cout << "ID incorrecto. Ingrese un ID valido: " << endl;
+            cin.clear(); // Limpiar el estado de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada inválida
+        } 
+        else if (materia.find(id)) {
+        cout << "Se elimino al curso: " << materia.get("NOMBRE_CURSO") << endl;
+        materia.remove(); 
+        }
+        else {
+            cout << "No se encontro un curso con el ID: " << id << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer de entrada
+        }
     }
 };
 /*    
@@ -305,11 +399,11 @@ public:
         int idEstudiante, idCurso, idNota;
         double calificacion;
         string fecha, tipo;
-        cout << "ID Nota: "; cin >> idNota;
+        cout << "ID Nota: "; cin >> idNota; validar_id(idNota);
         cout << "ID Estudiante: "; cin >> idEstudiante;
         cout << "ID Curso: "; cin >> idCurso;
-        cout << "Tipo: "; cin >> tipo;
-        cout << "Calificación: "; cin >> calificacion;
+        cout << "Tipo (PRESENCIAL/ONLINE): "; cin >> tipo;
+        cout << "Calificacion: "; cin >> calificacion;
         cout << "Fecha de registro (YYYY-MM-DD): "; cin >> fecha;
 
         orm.set("id", to_string(idNota));
@@ -332,7 +426,7 @@ public:
         for (auto& reg : lista) {
             cout << "ID: " << reg["id"] << ", Estudiante: " << reg["ID_ESTUDIANTE"]
                  << ", Curso: " << reg["ID_CURSO"]
-                 << ", Calificación: " << reg["NOTA"] << endl
+                 << ", Calificacion: " << reg["NOTA"] << endl
                  << "Tipo: " << reg["TIPO"] << ", Fecha: " << reg["FECHA_REGISTRO"] << endl;
         }
     }
@@ -345,15 +439,15 @@ public:
         EloquentORM orm(conn, "NOTAS", {"id", "ID_ESTUDIANTE", "ID_CURSO", "TIPO", "NOTA", "FECHA_REGISTRO"}); 
         // Solicitar el ID de la nota a actualizar   
         int id;
-        cout << "ID de la nota: "; cin >> id;
+        cout << "ID de la nota: "; cin >> id; validar_id(id);
         // Solicitar nuevos datos
         int idEstudiante, idCurso;
         double calificacion;
         string fecha, tipo;
         cout << "Nuevo ID Estudiante: "; cin >> idEstudiante;
         cout << "Nuevo ID Curso: "; cin >> idCurso;
-        cout << "Nuevo Tipo: "; cin.ignore(); getline(cin, tipo);
-        cout << "Nueva Calificación: "; cin >> calificacion;
+        cout << "Nuevo Tipo (PRESENCIAL/ONLINE): "; cin >> tipo;
+        cout << "Nueva Calificacion: "; cin >> calificacion;
         cout << "Nueva Fecha (YYYY-MM-DD): "; cin >> fecha;
 
         orm.set("id", to_string(id));
@@ -375,9 +469,20 @@ public:
         // Solicitar el ID de la nota a eliminar
         int id;
         cout << "ID de la nota: "; cin >> id;
-        orm.find(id);
-        cout << "Se elimino la nota: " << orm.get("TIPO") << endl;
-        cout << (orm.remove() ? "Nota eliminada.\n" : "Error al eliminar nota.\n");
+        // Validar el ID ingresado
+        if (cin.fail() || id <= 0) {
+            cout << "ID incorrecto. Ingrese un ID valido: " << endl;
+            cin.clear(); // Limpiar el estado de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada inválida
+        } 
+        else if (orm.find(id)) {
+        cout << "Se elimino la nota del estudiante con ID: " << orm.get("ID_ESTUDIANTE") << endl;
+        orm.remove(); 
+        }
+        else {
+            cout << "No se encontro un estudiante con el ID: " << id << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer de entrada
+        }
     }
 };
 
@@ -394,7 +499,7 @@ void mostrar_menu_entidad(const string& nombreEntidad) {
     cout << "2. Leer\n";
     cout << "3. Actualizar\n";
     cout << "4. Eliminar\n";
-    cout << "5. Volver al menú principal\n";
+    cout << "5. Volver al menu principal\n";
 }
 
 // ================= MAIN ====================
@@ -422,21 +527,24 @@ int main() {
     Nota nota(conn);
 
     // Mostrar el menú principal
-    cout << "Bienvenido al sistema de gestión de estudiantes.\n";
+    cout << "Bienvenido al sistema de gestion de estudiantes.\n";
     int opcionEntidad = 0, opcionAccion = 0;
 
     do {
-        cout << "\n==== MENÚ PRINCIPAL ====\n";
+        limpiar_pantalla();
+        Color(WHITE, BLACK);
+        cout << "\n==== MENU PRINCIPAL ====\n";
         cout << "1. Estudiantes\n";
         cout << "2. Docentes\n";
         cout << "3. Cursos\n";
         cout << "4. Notas\n";
         cout << "5. Salir\n";
-        cout << "Seleccione una opción: ";
+        cout << "Seleccione una opcion: ";
         cin >> opcionEntidad;
 
         if (opcionEntidad == 5) break;
 
+        limpiar_pantalla();
         mostrar_menu_entidad(
             opcionEntidad == 1 ? "Estudiantes" :
             opcionEntidad == 2 ? "Docentes" :
@@ -471,12 +579,11 @@ int main() {
                 else if (opcionAccion == 4) nota.eliminar_nota();
                 break;
         }
-
     } while (true);
 
     // Cerrar la conexión a la base de datos
     conn.close();
-    cout << "Conexión cerrada. Saliendo del sistema...\n";
+    cout << "Conexion cerrada. Saliendo del sistema...\n";
     return 0;
 }
 // FIN DE CÓDIGO
